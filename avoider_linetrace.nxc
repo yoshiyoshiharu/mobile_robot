@@ -1,0 +1,150 @@
+#define th1 20
+#define th2 30
+#define th3 50
+int sem;
+int right= 0;
+int left = 0;
+task avoid(){
+    while(true){
+		if(Sensor(IN_4) == 1){
+        if(left <= right){
+        until(sem == 0);
+		    sem = 1;
+
+           OnFwd(OUT_A , 60);
+           OnRev(OUT_C , 60); Wait(1500);
+
+           OnFwd(OUT_AC , 60);Wait(1500);
+
+           OnFwd(OUT_C , 60);
+           OnRev(OUT_A , 60); Wait(1420);
+
+           OnFwd(OUT_AC , 60);Wait(3000);
+
+           OnFwd(OUT_C , 60);
+           OnRev(OUT_A , 60); Wait(1410);
+
+           OnFwd(OUT_AC , 60);Wait(1500);
+
+
+           OnFwd(OUT_A , 60);
+           OnRev(OUT_C , 60); Wait(1500);
+		    sem = 0;
+        }else{
+        until(sem == 0);
+		    sem = 1;
+
+           OnFwd(OUT_C , 60);
+           OnRev(OUT_A , 60); Wait(1500);
+
+           OnFwd(OUT_AC , 60);Wait(1500);
+
+           OnFwd(OUT_A , 60);
+           OnRev(OUT_C , 60); Wait(1420);
+
+           OnFwd(OUT_AC , 60);Wait(3000);
+
+           OnFwd(OUT_A , 60);
+           OnRev(OUT_C , 60); Wait(1410);
+
+           OnFwd(OUT_AC , 60);Wait(1500);
+
+
+           OnFwd(OUT_C , 60);
+           OnRev(OUT_A , 60); Wait(1500);
+		    sem = 0;
+
+        }
+        left=0;
+        right=0;
+		}
+    }
+}
+
+task turn_left(){
+
+    while(true){
+		if(Sensor(IN_1) <= th1){
+		    until(sem == 0);
+		    sem = 1;
+			    OnFwd(OUT_C,40);
+			    OnRev(OUT_A,40);
+		    sem = 0;
+		    left++;
+		}
+    }
+}
+
+task turn_right(){
+
+    while(true){
+		if(Sensor(IN_3) <= th1){
+		    until(sem == 0);
+		    sem = 1;
+			    OnFwd(OUT_A,40);
+			    OnRev(OUT_C,40);
+		    sem = 0;
+		    right++;
+		}
+    }
+}
+
+task random_search(){
+	while(true){
+		if(Sensor(IN_1) >= th2 && Sensor(IN_2)>=th2 && Sensor(IN_3) >= th2){
+ 			    until(sem == 0);
+		    	sem = 1;
+
+	        int x;
+	        x = rand()%3;
+          Off(OUT_AC);
+	        switch(x){
+          case 0:
+					OnFwd(OUT_C,70);
+				  OnRev(OUT_A,70);
+          Wait(200);
+					break;
+
+          case 1:
+					OnFwd(OUT_A,70);
+	        OnRev(OUT_C,70);
+          Wait(200);
+					break;
+	        case 2:
+					OnFwd(OUT_AC , 70);
+					Wait(200);
+					break;
+	        }
+			sem = 0;
+		}
+	}
+
+}
+
+
+task main()
+{
+   SetSensorLight(IN_1);
+   SetSensorLight(IN_2);
+   SetSensorLight(IN_3);
+   SetSensorTouch(IN_4);
+
+   sem=0;
+   start avoid;
+   start turn_left;
+   start turn_right;
+   start random_search;
+
+   while(true){
+     NumOut(1,1,Sensor(IN_4));
+
+	   if(Sensor(IN_2) <= th1){
+	   		until(sem == 0);
+			sem = 1;
+ 		  OnFwd(OUT_AC , 40);
+			sem = 0;
+	   }
+
+
+   }
+}
